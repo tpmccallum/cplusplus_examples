@@ -1,0 +1,55 @@
+
+# Emscripten SDK
+emsdk/
+
+# CMake and Ninja build directories
+build/
+build-*/
+cmake-build-*/
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+compile_commands.json
+.ninja_deps
+.ninja_log
+build.ninja
+
+# Compiled C++ files
+*.o
+*.obj
+*.a
+*.so
+*.so.*
+*.dll
+*.dylib
+*.exe
+*.out
+
+# Debugging and profiling
+*.core
+core
+core.*
+*.gcda
+*.gcno
+*.profraw
+*.profdata
+
+# Generated WebAssembly files
+*.wasm
+*.wasm.map
+
+# Generated Emscripten JavaScript
+*.js.mem
+*.data
+
+# IDE and editor files
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.swp
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
