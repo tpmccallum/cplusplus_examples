@@ -1,7 +1,3 @@
-
-# Emscripten SDK
-emsdk/
-
 # CMake and Ninja build directories
 build/
 build-*/
