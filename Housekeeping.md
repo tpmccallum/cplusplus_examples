@@ -1,3 +1,62 @@
+# Housekeeping
+
+## Install Development Tools
+
+Install Clang/LLVM, CMake, Ninja, GDB and Git on Ubuntu:
+
+```bash
+sudo apt update
+sudo apt install build-essential clang llvm cmake ninja-build gdb git
+```
+
+## Install Emscripten
+
+Install the official Emscripten SDK:
+
+```bash
+mkdir -p ~/tools
+cd ~/tools
+
+git clone https://github.com/emscripten-core/emsdk.git
+cd emsdk
+
+./emsdk install latest
+./emsdk activate latest
+source ./emsdk_env.sh
+```
+
+## Configure Emscripten Permanently
+
+Add the following line to the end of `~/.bashrc`:
+
+```bash
+source "$HOME/tools/emsdk/emsdk_env.sh" >/dev/null 2>&1
+```
+
+Reload your configuration:
+
+```bash
+source ~/.bashrc
+```
+
+## Verify Installation
+
+```bash
+clang++ --version
+cmake --version
+ninja --version
+gdb --version
+em++ --version
+```
+
+## Verify Compiler Locations
+
+```bash
+which clang++
+which em++
+echo "$EMSDK"
+```
+
 
 ## Compiling C++
 
