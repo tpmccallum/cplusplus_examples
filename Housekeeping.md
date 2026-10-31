@@ -1,79 +1,119 @@
-# Housekeeping
 
-# Development Environment
+## Compiling C++
 
-My C++ development environment runs on Ubuntu Linux, using:
+C++ applications can be compiled directly using a compiler or automatically using CMake and Ninja.
 
-- **Visual Studio Code** for code editing
-- **Clang/LLVM** for native C++ compilation
-- **CMake** for project configuration and build generation
-- **Ninja** for build execution
-- **GDB** for debugging native applications
-- **Emscripten** for compiling C++ into WebAssembly
+All generated files are stored in dedicated build directories excluded from Git by `.gitignore`.
 
-## Install Development Tools
+### 1. Direct Compilation
+
+Invoke the compiler directly. This approach is ideal for learning, experimenting and compiling simple programs.
+
+#### Native Linux Using Clang
 
 ```bash
-sudo apt update
-sudo apt install build-essential clang cmake ninja-build gdb
+mkdir -p build-direct-native
+clang++ -std=c++20 main.cpp -o build-direct-native/main
+./build-direct-native/main
 ```
 
-## Install Emscripten
+Clang compiles `main.cpp` into a native Linux executable named `main`, stored in `build-direct-native/`.
 
-Install the official Emscripten SDK:
+#### WebAssembly Using Emscripten
 
 ```bash
-git clone https://github.com/emscripten-core/emsdk.git
-cd emsdk
-
-./emsdk install latest
-./emsdk activate latest
-source ./emsdk_env.sh
+mkdir -p build-direct-wasm
+em++ -std=c++20 main.cpp -o build-direct-wasm/main.js
 ```
 
-The environment script must be sourced in each new terminal session unless the environment has been configured persistently.
+Emscripten uses its own Clang/LLVM toolchain to compile the C++ source into WebAssembly.
 
-## Verify Installation
+This produces two files inside `build-direct-wasm/`:
 
-```bash
-clang++ --version
-cmake --version
-ninja --version
-gdb --version
-em++ --version
-```
+- `main.wasm` contains the compiled WebAssembly module.
+- `main.js` provides the JavaScript loader and runtime integration.
 
-## Compile C++
+These files target a JavaScript environment and are not executed directly as native Linux applications.
 
-**Native Linux executable using Clang:**
+### 2. Automated Compilation Using CMake and Ninja
 
-```bash
-clang++ -std=c++20 main.cpp -o main
-./main
-```
+CMake configures the project and generates build instructions. Ninja executes those instructions using the selected compiler.
 
-**WebAssembly using Emscripten:**
+This approach is recommended for larger projects, external dependencies and multiple compilation targets.
 
-```bash
-em++ -std=c++20 main.cpp -o main.js
-```
+A `CMakeLists.txt` file is required in the project root.
 
-## Build with CMake and Ninja
-
-**Native Linux using Clang:**
+#### Native Linux Using Clang
 
 ```bash
 cmake -S . -B build-native -G Ninja -DCMAKE_CXX_COMPILER=clang++
 cmake --build build-native
 ```
 
-**WebAssembly using Emscripten:**
+The first command:
+
+- `-S .` specifies the current directory as the source directory.
+- `-B build-native` stores generated build files in `build-native/`.
+- `-G Ninja` selects Ninja as the build system.
+- `-DCMAKE_CXX_COMPILER=clang++` selects Clang as the C++ compiler.
+
+The second command executes the build using Ninja.
+
+The resulting executable is stored in `build-native/`, with its name and location determined by `CMakeLists.txt`.
+
+#### WebAssembly Using Emscripten
 
 ```bash
 emcmake cmake -S . -B build-wasm -G Ninja
 cmake --build build-wasm
 ```
 
-Both configurations use CMake and Ninja, with separate compiler toolchains and build directories for native Linux and WebAssembly targets.
+The first command configures CMake to use Emscripten's WebAssembly toolchain and generates Ninja build instructions in `build-wasm/`.
 
-**Note:** Emscripten uses its own Clang/LLVM toolchain. It does not require GCC or Ubuntu's system Clang to generate WebAssembly.
+The second command executes the build using Ninja.
+
+Generated WebAssembly artifacts remain inside `build-wasm/`. Their filenames and runtime integration depend on the CMake configuration.
+
+## What's the Difference?
+
+### Direct Compilation
+
+The compiler is invoked manually.
+
+- Clang generates native Linux executables.
+- Emscripten generates WebAssembly and supporting runtime files.
+- Best suited to simple programs and experiments.
+
+### Automated Compilation
+
+CMake manages build configuration, while Ninja executes the generated build instructions.
+
+- Supports multiple source files and dependencies.
+- Rebuilds only what is necessary.
+- Supports different compiler toolchains and target platforms.
+- Best suited to larger projects and ongoing development.
+
+Both approaches use Clang/LLVM for compilation in this environment. CMake and Ninja automate the build process rather than replace the compiler.
+
+## Build Directory Organisation
+
+All compiled output is kept separate from source code:
+
+```text
+cplusplus_examples/
+├── .gitignore
+├── CMakeLists.txt
+├── main.cpp
+├── build-direct-native/
+├── build-direct-wasm/
+├── build-native/
+└── build-wasm/
+```
+
+The following `.gitignore` pattern excludes all four build directories:
+
+```gitignore
+/build-*/
+```
+
+**Note:** Use separate build directories for native and WebAssembly targets. CMake caches the selected compiler and toolchain, so switching targets should use a fresh build directory.
